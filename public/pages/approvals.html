@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>簽核管理 - CDC 文件管制中心</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/pages/dashboard.html">
+                <i class="bi bi-file-earmark-check me-2"></i>CDC 文件管制中心
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/pages/dashboard.html">
+                            <i class="bi bi-speedometer2 me-1"></i>儀表板
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/pages/documents.html">
+                            <i class="bi bi-files me-1"></i>文件管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/pages/approvals.html">
+                            <i class="bi bi-clipboard-check me-1"></i>簽核管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/pages/admin.html" id="adminLink">
+                            <i class="bi bi-gear me-1"></i>系統管理
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center text-white">
+                    <span id="userInfo" class="me-3"></span>
+                    <button class="btn btn-outline-light btn-sm" id="logoutBtn">
+                        <i class="bi bi-box-arrow-right me-1"></i>登出
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="page-header">
+                    <div class="container-fluid">
+                        <h1 class="page-title">
+                            <i class="bi bi-clipboard-check me-2"></i>簽核管理
+                        </h1>
+                        <p class="page-subtitle">查看與處理待辦簽核事項</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid">
+            <div id="alerts"></div>
+
+            <!-- Pending Approvals -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-list-check me-2"></i>待辦事項</span>
+                    <span id="pendingCount" class="badge bg-primary"></span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>文件代碼</th>
+                                    <th>文件標題</th>
+                                    <th>版本</th>
+                                    <th>簽核階段</th>
+                                    <th>狀態</th>
+                                    <th>提交時間</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="approvalsTable">
+                                <tr>
+                                    <td colspan="7" class="text-center">
+                                        <div class="spinner-border text-primary my-3" role="status">
+                                            <span class="visually-hidden">載入中...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/utils.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check if user is admin and hide admin links if not
+            const user = getCurrentUser();
+            if (!user || user.role !== 'admin') {
+                const adminLink = document.getElementById('adminLink');
+                if (adminLink) adminLink.style.display = 'none';
+            }
+
+            await loadPendingApprovals();
+        });
+
+        async function loadPendingApprovals() {
+            try {
+                const response = await ApprovalsAPI.getPending();
+                const approvals = response.data || [];
+
+                document.getElementById('pendingCount').textContent = `${approvals.length} 筆`;
+                displayApprovals(approvals);
+            } catch (error) {
+                console.error('Error loading pending approvals:', error);
+                document.getElementById('approvalsTable').innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center text-danger p-4">
+                            <i class="bi bi-exclamation-triangle me-2"></i>載入待辦事項時發生錯誤
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function displayApprovals(approvals) {
+            const tbody = document.getElementById('approvalsTable');
+
+            if (approvals.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center text-muted p-4">
+                            <i class="bi bi-check-circle" style="font-size: 3rem;"></i>
+                            <p class="mt-2">沒有待辦事項</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let html = '';
+            approvals.forEach(approval => {
+                const actionPage = approval.approval_stage === 2 
+                    ? 'approval-review.html' 
+                    : 'approval-approve.html';
+
+                html += `
+                    <tr class="cursor-pointer" onclick="window.location.href='/pages/${actionPage}?id=${approval.version_id}'">
+                        <td><span class="document-code">${approval.document_code}</span></td>
+                        <td>${approval.title}</td>
+                        <td>版本 ${approval.version_number}</td>
+                        <td>${approval.stage_name}</td>
+                        <td>${getStatusBadge(approval.status)}</td>
+                        <td>${formatDate(approval.created_at)}</td>
+                        <td onclick="event.stopPropagation()">
+                            <a href="/pages/${actionPage}?id=${approval.version_id}" class="btn btn-sm btn-primary">
+                                <i class="bi bi-pencil-square me-1"></i>處理
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
