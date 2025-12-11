@@ -111,14 +111,14 @@
             }
         }
 
-        function displayDocumentInfo(document) {
+        function displayDocumentInfo(doc) {
             const html = `
                 <div class="row">
                     <div class="col-12">
                         <div class="card mb-4">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0"><i class="bi bi-file-text me-2"></i>文件資訊</h5>
-                                ${document.status === 'approved' ? `
+                                ${doc.status === 'approved' ? `
                                     <button class="btn btn-success" onclick="downloadOfficialVersion()">
                                         <i class="bi bi-download me-2"></i>下載正式版
                                     </button>
@@ -130,15 +130,15 @@
                                         <table class="table table-borderless">
                                             <tr>
                                                 <th width="30%">文件代碼：</th>
-                                                <td><span class="document-code">${document.document_code}</span></td>
+                                                <td><span class="document-code">${doc.document_code}</span></td>
                                             </tr>
                                             <tr>
                                                 <th>文件標題：</th>
-                                                <td><strong>${document.title}</strong></td>
+                                                <td><strong>${doc.title}</strong></td>
                                             </tr>
                                             <tr>
                                                 <th>文件描述：</th>
-                                                <td>${document.description || '-'}</td>
+                                                <td>${doc.description || '-'}</td>
                                             </tr>
                                         </table>
                                     </div>
@@ -146,15 +146,15 @@
                                         <table class="table table-borderless">
                                             <tr>
                                                 <th width="30%">目前版本：</th>
-                                                <td>${document.current_version || 0}</td>
+                                                <td>${doc.current_version || 0}</td>
                                             </tr>
                                             <tr>
                                                 <th>文件狀態：</th>
-                                                <td>${getStatusBadge(document.status)}</td>
+                                                <td>${getStatusBadge(doc.status)}</td>
                                             </tr>
                                             <tr>
                                                 <th>建立時間：</th>
-                                                <td>${formatDate(document.created_at)}</td>
+                                                <td>${formatDate(doc.created_at)}</td>
                                             </tr>
                                         </table>
                                     </div>
