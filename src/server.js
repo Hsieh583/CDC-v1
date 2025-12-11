@@ -11,26 +11,26 @@ const adminRoutes = require('./routes/admin.routes');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// 中介軟體
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from public directory
+// 從 public 目錄提供靜態檔案
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Health check endpoint
+// 健康檢查端點
 app.get('/health', (req, res) => {
     res.json({ status: 'OK', message: 'CDC Document Control Center is running' });
 });
 
-// API routes
+// API 路由
 app.use('/api/documents', documentRoutes);
 app.use('/api/approvals', approvalRoutes);
 app.use('/api/admin', adminRoutes);
 
-// API documentation endpoint
+// API 文件端點
 app.get('/api', (req, res) => {
     res.json({
         name: 'CDC Document Control Center API',
@@ -80,26 +80,26 @@ app.get('/api', (req, res) => {
     });
 });
 
-// Error handling middleware
+// 錯誤處理中介軟體
 app.use((err, req, res, next) => {
     console.error('Error:', err);
-    
+
     if (err.name === 'MulterError') {
         if (err.code === 'LIMIT_FILE_SIZE') {
             return res.status(400).json({ error: 'File size too large' });
         }
         return res.status(400).json({ error: err.message });
     }
-    
+
     res.status(500).json({ error: err.message || 'Internal server error' });
 });
 
-// 404 handler
+// 404 處理常式
 app.use((req, res) => {
     res.status(404).json({ error: 'Route not found' });
 });
 
-// Start server
+// 啟動伺服器
 app.listen(PORT, () => {
     console.log(`
 ╔═══════════════════════════════════════════════════════════════╗

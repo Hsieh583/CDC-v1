@@ -2,7 +2,7 @@ const db = require('../database/db');
 
 class DocumentModel {
     /**
-     * Create a new document
+     * 建立新文件
      */
     static async create(data) {
         const { document_code, title, category_id, description, author_id } = data;
@@ -15,7 +15,7 @@ class DocumentModel {
     }
 
     /**
-     * Get document by ID
+     * 依 ID 取得文件
      */
     static async findById(id) {
         return await db.get(
@@ -30,7 +30,7 @@ class DocumentModel {
     }
 
     /**
-     * Get document by code
+     * 依代碼取得文件
      */
     static async findByCode(code) {
         return await db.get(
@@ -45,7 +45,7 @@ class DocumentModel {
     }
 
     /**
-     * Search documents
+     * 搜尋文件
      */
     static async search(filters = {}) {
         let sql = `
@@ -90,7 +90,7 @@ class DocumentModel {
     }
 
     /**
-     * Update document
+     * 更新文件
      */
     static async update(id, data) {
         const fields = [];
@@ -121,7 +121,7 @@ class DocumentModel {
     }
 
     /**
-     * Delete document (soft delete)
+     * 刪除文件（軟刪除）
      */
     static async delete(id) {
         return await db.run(
@@ -131,7 +131,7 @@ class DocumentModel {
     }
 
     /**
-     * Get all documents with pagination
+     * 取得所有文件（含分頁）
      */
     static async getAll(page = 1, limit = 20) {
         const offset = (page - 1) * limit;

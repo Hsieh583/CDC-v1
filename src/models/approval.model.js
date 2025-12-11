@@ -2,7 +2,7 @@ const db = require('../database/db');
 
 class ApprovalModel {
     /**
-     * Create an approval record
+     * 建立簽核紀錄
      */
     static async create(data) {
         const { version_id, stage_number, approver_id, action, comments } = data;
@@ -16,7 +16,7 @@ class ApprovalModel {
     }
 
     /**
-     * Get approval records for a version
+     * 取得版本的簽核紀錄
      */
     static async findByVersionId(versionId) {
         return await db.all(
@@ -30,7 +30,7 @@ class ApprovalModel {
     }
 
     /**
-     * Get latest approval for each stage of a version
+     * 取得版本各階段的最新簽核
      */
     static async getLatestApprovals(versionId) {
         return await db.all(
@@ -50,7 +50,7 @@ class ApprovalModel {
     }
 
     /**
-     * Check if a stage has been approved
+     * 檢查階段是否已核准
      */
     static async isStageApproved(versionId, stageNumber) {
         const record = await db.get(
@@ -64,7 +64,7 @@ class ApprovalModel {
     }
 
     /**
-     * Get approval workflow for a category
+     * 取得類別的簽核流程
      */
     static async getWorkflowByCategory(categoryId) {
         return await db.all(
@@ -76,25 +76,25 @@ class ApprovalModel {
     }
 
     /**
-     * Get current approval stage for a version
+     * 取得版本目前的簽核階段
      */
     static async getCurrentStage(versionId) {
         const approvals = await this.getLatestApprovals(versionId);
-        
-        // Find the first non-approved stage
+
+        // 尋找第一個未核准的階段
         for (let stage = 1; stage <= 3; stage++) {
             const stageApproval = approvals.find(a => a.stage_number === stage);
             if (!stageApproval || stageApproval.action !== 'approved') {
                 return stage;
             }
         }
-        
-        // All stages approved
-        return 4; // Beyond final stage
+
+        // 所有階段皆已核准
+        return 4; // 超過最終階段
     }
 
     /**
-     * Get approval history for a document (all versions)
+     * 取得文件的簽核歷史紀錄（所有版本）
      */
     static async getDocumentApprovalHistory(documentId) {
         return await db.all(

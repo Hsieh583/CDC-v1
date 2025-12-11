@@ -2,7 +2,7 @@ const db = require('../database/db');
 
 class VersionModel {
     /**
-     * Create a new document version
+     * 建立新文件版本
      */
     static async create(data) {
         const {
@@ -17,13 +17,13 @@ class VersionModel {
               file_path, sharepoint_path, file_size, file_type, author_id, status)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'draft')`,
             [document_id, version_number, title, description, file_name,
-             file_path, sharepoint_path, file_size, file_type, author_id]
+                file_path, sharepoint_path, file_size, file_type, author_id]
         );
         return result.id;
     }
 
     /**
-     * Get version by ID
+     * 依 ID 取得版本
      */
     static async findById(id) {
         return await db.get(
@@ -38,7 +38,7 @@ class VersionModel {
     }
 
     /**
-     * Get all versions for a document
+     * 取得文件的所有版本
      */
     static async findByDocumentId(documentId) {
         return await db.all(
@@ -52,7 +52,7 @@ class VersionModel {
     }
 
     /**
-     * Get latest version for a document
+     * 取得文件的最新版本
      */
     static async getLatestVersion(documentId) {
         return await db.get(
@@ -67,7 +67,7 @@ class VersionModel {
     }
 
     /**
-     * Get official version for a document
+     * 取得文件的正式版本
      */
     static async getOfficialVersion(documentId) {
         return await db.get(
@@ -80,7 +80,7 @@ class VersionModel {
     }
 
     /**
-     * Update version
+     * 更新版本
      */
     static async update(id, data) {
         const fields = [];
@@ -111,10 +111,10 @@ class VersionModel {
     }
 
     /**
-     * Set version as official and archive old official version
+     * 將版本設為正式版並封存舊的正式版
      */
     static async setAsOfficial(versionId, documentId) {
-        // First, archive the current official version
+        // 首先，封存目前的正式版本
         await db.run(
             `UPDATE document_versions 
              SET is_official = 0, status = 'archived'
@@ -122,7 +122,7 @@ class VersionModel {
             [documentId]
         );
 
-        // Then set the new version as official
+        // 然後將新版本設為正式版
         await db.run(
             `UPDATE document_versions 
              SET is_official = 1, status = 'approved', approved_at = CURRENT_TIMESTAMP
@@ -134,7 +134,7 @@ class VersionModel {
     }
 
     /**
-     * Get next version number for a document
+     * 取得文件的下一個版本號
      */
     static async getNextVersionNumber(documentId) {
         const result = await db.get(
@@ -147,7 +147,7 @@ class VersionModel {
     }
 
     /**
-     * Get versions pending approval
+     * 取得待核准的版本
      */
     static async getPendingApprovals(userId, role) {
         let statusFilter = '';
@@ -158,7 +158,7 @@ class VersionModel {
         }
 
         return await db.all(
-            `SELECT v.*, d.document_code, d.title as document_title,
+            `SELECT v.*, v.id as version_id, d.document_code, d.title as document_title,
                     u.full_name as author_name
              FROM document_versions v
              LEFT JOIN documents d ON v.document_id = d.id

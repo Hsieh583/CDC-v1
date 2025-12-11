@@ -1,6 +1,6 @@
-// Utility Functions
+// 工具函式
 
-// Show loading spinner
+// 顯示載入中旋轉圖示
 function showLoading(elementId = 'content') {
     const element = document.getElementById(elementId);
     if (element) {
@@ -14,7 +14,7 @@ function showLoading(elementId = 'content') {
     }
 }
 
-// Show error message
+// 顯示錯誤訊息
 function showError(message, elementId = 'content') {
     const element = document.getElementById(elementId);
     if (element) {
@@ -26,7 +26,7 @@ function showError(message, elementId = 'content') {
     }
 }
 
-// Show success message
+// 顯示成功訊息
 function showSuccess(message, elementId = 'alerts') {
     const element = document.getElementById(elementId);
     if (element) {
@@ -37,15 +37,15 @@ function showSuccess(message, elementId = 'alerts') {
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
         element.appendChild(alertDiv);
-        
-        // Auto dismiss after 5 seconds
+
+        // 5 秒後自動關閉
         setTimeout(() => {
             alertDiv.remove();
         }, 5000);
     }
 }
 
-// Show toast notification
+// 顯示快顯通知
 function showToast(message, type = 'success') {
     const toastContainer = document.getElementById('toastContainer');
     if (!toastContainer) {
@@ -54,10 +54,10 @@ function showToast(message, type = 'success') {
         container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
         document.body.appendChild(container);
     }
-    
+
     const toastId = 'toast-' + Date.now();
     const bgClass = type === 'success' ? 'bg-success' : type === 'error' ? 'bg-danger' : 'bg-info';
-    
+
     const toastHTML = `
         <div id="${toastId}" class="toast" role="alert">
             <div class="toast-header ${bgClass} text-white">
@@ -69,19 +69,19 @@ function showToast(message, type = 'success') {
             </div>
         </div>
     `;
-    
+
     document.getElementById('toastContainer').insertAdjacentHTML('beforeend', toastHTML);
     const toastElement = document.getElementById(toastId);
     const toast = new bootstrap.Toast(toastElement);
     toast.show();
-    
-    // Remove toast after hidden
+
+    // 隱藏後移除快顯通知
     toastElement.addEventListener('hidden.bs.toast', () => {
         toastElement.remove();
     });
 }
 
-// Format date
+// 格式化日期
 function formatDate(dateString) {
     if (!dateString) return '-';
     const date = new Date(dateString);
@@ -94,7 +94,7 @@ function formatDate(dateString) {
     });
 }
 
-// Format date only
+// 僅格式化日期
 function formatDateOnly(dateString) {
     if (!dateString) return '-';
     const date = new Date(dateString);
@@ -105,7 +105,7 @@ function formatDateOnly(dateString) {
     });
 }
 
-// Get status badge
+// 取得狀態徽章
 function getStatusBadge(status) {
     const statusMap = {
         'draft': { text: '草稿', class: 'bg-secondary' },
@@ -115,12 +115,12 @@ function getStatusBadge(status) {
         'rejected': { text: '已拒絕', class: 'bg-danger' },
         'archived': { text: '已封存', class: 'bg-dark' }
     };
-    
+
     const statusInfo = statusMap[status] || { text: status, class: 'bg-secondary' };
     return `<span class="badge ${statusInfo.class}">${statusInfo.text}</span>`;
 }
 
-// Get action badge
+// 取得動作徽章
 function getActionBadge(action) {
     const actionMap = {
         'submitted': { text: '已提交', class: 'bg-primary' },
@@ -128,12 +128,12 @@ function getActionBadge(action) {
         'rejected': { text: '已拒絕', class: 'bg-danger' },
         'returned': { text: '已退回', class: 'bg-warning' }
     };
-    
+
     const actionInfo = actionMap[action] || { text: action, class: 'bg-secondary' };
     return `<span class="badge ${actionInfo.class}">${actionInfo.text}</span>`;
 }
 
-// Get role badge
+// 取得角色徽章
 function getRoleBadge(role) {
     const roleMap = {
         'admin': { text: '管理員', class: 'bg-danger' },
@@ -142,18 +142,18 @@ function getRoleBadge(role) {
         'approver': { text: '核准人', class: 'bg-success' },
         'viewer': { text: '檢視者', class: 'bg-secondary' }
     };
-    
+
     const roleInfo = roleMap[role] || { text: role, class: 'bg-secondary' };
     return `<span class="badge ${roleInfo.class}">${roleInfo.text}</span>`;
 }
 
-// Check if user is admin
+// 檢查使用者是否為管理員
 function isAdmin() {
     const user = getCurrentUser();
     return user && user.role === 'admin';
 }
 
-// Check authentication
+// 檢查驗證
 function checkAuth() {
     const user = getCurrentUser();
     if (!user) {
@@ -163,17 +163,17 @@ function checkAuth() {
     return true;
 }
 
-// Logout
+// 登出
 function logout() {
     clearSession();
     window.location.href = '/index.html';
 }
 
-// Update navigation with user info
+// 更新導覽列使用者資訊
 function updateNavigation() {
     const user = getCurrentUser();
     const userInfoElement = document.getElementById('userInfo');
-    
+
     if (userInfoElement && user) {
         userInfoElement.innerHTML = `
             <span class="me-2">${user.full_name || user.username}</span>
@@ -182,20 +182,20 @@ function updateNavigation() {
     }
 }
 
-// Pagination helper
+// 分頁輔助函式
 function createPagination(currentPage, totalPages, onPageChange) {
     if (totalPages <= 1) return '';
-    
+
     let html = '<nav><ul class="pagination justify-content-center">';
-    
-    // Previous button
+
+    // 上一頁按鈕
     html += `
         <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
             <a class="page-link" href="#" data-page="${currentPage - 1}">上一頁</a>
         </li>
     `;
-    
-    // Page numbers
+
+    // 頁碼
     for (let i = 1; i <= totalPages; i++) {
         if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
             html += `
@@ -207,25 +207,25 @@ function createPagination(currentPage, totalPages, onPageChange) {
             html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
         }
     }
-    
-    // Next button
+
+    // 下一頁按鈕
     html += `
         <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
             <a class="page-link" href="#" data-page="${currentPage + 1}">下一頁</a>
         </li>
     `;
-    
+
     html += '</ul></nav>';
-    
+
     return html;
 }
 
-// Confirm dialog
+// 確認對話框
 function confirmAction(message) {
     return confirm(message);
 }
 
-// Download file helper
+// 下載檔案輔助函式
 async function downloadFile(blob, filename) {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -237,18 +237,18 @@ async function downloadFile(blob, filename) {
     document.body.removeChild(a);
 }
 
-// Get file extension
+// 取得副檔名
 function getFileExtension(filename) {
     return filename.split('.').pop().toLowerCase();
 }
 
-// Validate file type
+// 驗證檔案類型
 function validateFileType(filename, allowedTypes = ['pdf', 'doc', 'docx']) {
     const ext = getFileExtension(filename);
     return allowedTypes.includes(ext);
 }
 
-// Format file size
+// 格式化檔案大小
 function formatFileSize(bytes) {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -257,7 +257,7 @@ function formatFileSize(bytes) {
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
 }
 
-// Debounce function
+// 防抖動函式
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -270,19 +270,19 @@ function debounce(func, wait) {
     };
 }
 
-// Initialize page
+// 初始化頁面
 function initializePage() {
-    // Check authentication (except for index.html)
+    // 檢查驗證（index.html 除外）
     if (!window.location.pathname.endsWith('index.html') && window.location.pathname !== '/') {
         if (!checkAuth()) {
             return;
         }
     }
-    
-    // Update navigation
+
+    // 更新導覽列
     updateNavigation();
-    
-    // Add logout handler
+
+    // 加入登出處理常式
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', (e) => {
@@ -292,5 +292,5 @@ function initializePage() {
     }
 }
 
-// Initialize on page load
+// 頁面載入時初始化
 document.addEventListener('DOMContentLoaded', initializePage);

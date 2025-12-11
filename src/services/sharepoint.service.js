@@ -11,8 +11,8 @@ class SharePointService {
         this.clientId = process.env.SHAREPOINT_CLIENT_ID;
         this.clientSecret = process.env.SHAREPOINT_CLIENT_SECRET;
         this.tenantId = process.env.SHAREPOINT_TENANT_ID;
-        
-        // Initialize MSAL for authentication
+
+        // 初始化 MSAL 進行驗證
         if (this.clientId && this.clientSecret && this.tenantId) {
             this.msalConfig = {
                 auth: {
@@ -26,14 +26,14 @@ class SharePointService {
     }
 
     /**
-     * Get access token for SharePoint API
+     * 取得 SharePoint API 的存取權杖
      */
     async getAccessToken() {
         try {
             const tokenRequest = {
                 scopes: [`${this.siteUrl}/.default`],
             };
-            
+
             const response = await this.cca.acquireTokenByClientCredential(tokenRequest);
             return response.accessToken;
         } catch (error) {
@@ -43,8 +43,8 @@ class SharePointService {
     }
 
     /**
-     * Generate file name based on document code and version
-     * Format: {DocumentCode}_v{Version}.{extension}
+     * 根據文件代碼與版本產生檔名
+     * 格式：{DocumentCode}_v{Version}.{extension}
      */
     generateFileName(documentCode, version, originalFileName) {
         const ext = path.extname(originalFileName);
@@ -52,18 +52,18 @@ class SharePointService {
     }
 
     /**
-     * Upload file to SharePoint document library
+     * 上傳檔案至 SharePoint 文件庫
      */
     async uploadFile(filePath, documentCode, version, originalFileName) {
         try {
-            // In production, this would actually upload to SharePoint
-            // For now, simulate the upload and return the SharePoint path
+            // 在正式環境中，這將實際已上傳至 SharePoint
+            // 目前，模擬上傳並回傳 SharePoint 路徑
             const fileName = this.generateFileName(documentCode, version, originalFileName);
             const sharePointPath = `${this.libraryName}/${documentCode}/${fileName}`;
-            
+
             console.log(`[SharePoint Service] Would upload file to: ${sharePointPath}`);
-            
-            // Simulate upload (in production, use actual SharePoint REST API)
+
+            // 模擬上傳（在正式環境中，使用實際的 SharePoint REST API）
             if (this.clientId && this.clientSecret) {
                 // const accessToken = await this.getAccessToken();
                 // Actual upload logic would go here
@@ -71,7 +71,7 @@ class SharePointService {
             } else {
                 console.log('[SharePoint Service] SharePoint not configured, using local storage');
             }
-            
+
             return {
                 success: true,
                 fileName: fileName,
@@ -85,19 +85,19 @@ class SharePointService {
     }
 
     /**
-     * Download file from SharePoint
+     * 從 SharePoint 下載檔案
      */
     async downloadFile(sharePointPath) {
         try {
             console.log(`[SharePoint Service] Would download file from: ${sharePointPath}`);
-            
-            // In production, this would download from SharePoint
-            // For now, return a simulated response
+
+            // 在正式環境中，這將從 SharePoint 下載
+            // 目前，回傳模擬回應
             if (this.clientId && this.clientSecret) {
                 // const accessToken = await this.getAccessToken();
                 // Actual download logic would go here
             }
-            
+
             return {
                 success: true,
                 message: 'File download would occur here in production'
@@ -109,14 +109,14 @@ class SharePointService {
     }
 
     /**
-     * Delete file from SharePoint (for version archiving)
+     * 從 SharePoint 刪除檔案（用於版本封存）
      */
     async deleteFile(sharePointPath) {
         try {
             console.log(`[SharePoint Service] Would delete file from: ${sharePointPath}`);
-            
-            // In production, this would delete from SharePoint
-            // For now, return a simulated response
+
+            // 在正式環境中，這將從 SharePoint 刪除
+            // 目前，回傳模擬回應
             return {
                 success: true,
                 message: 'File deletion would occur here in production'
@@ -128,14 +128,14 @@ class SharePointService {
     }
 
     /**
-     * Check if file exists in SharePoint
+     * 檢查檔案是否存在於 SharePoint
      */
     async fileExists(sharePointPath) {
         try {
             console.log(`[SharePoint Service] Would check if file exists at: ${sharePointPath}`);
-            
-            // In production, this would check SharePoint
-            return false; // Simulate file doesn't exist
+
+            // 在正式環境中，這將檢查 SharePoint
+            return false; // 模擬檔案不存在
         } catch (error) {
             console.error('Error checking file existence:', error);
             return false;
@@ -143,13 +143,13 @@ class SharePointService {
     }
 
     /**
-     * Get file metadata from SharePoint
+     * 從 SharePoint 取得檔案中繼資料
      */
     async getFileMetadata(sharePointPath) {
         try {
             console.log(`[SharePoint Service] Would get metadata for: ${sharePointPath}`);
-            
-            // In production, this would retrieve metadata from SharePoint
+
+            // 在正式環境中，這將從 SharePoint 檢索中繼資料
             return {
                 name: path.basename(sharePointPath),
                 size: 0,

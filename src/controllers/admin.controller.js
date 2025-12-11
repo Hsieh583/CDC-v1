@@ -2,7 +2,7 @@ const db = require('../database/db');
 
 class AdminController {
     /**
-     * Get all categories
+     * 取得所有類別
      */
     async getCategories(req, res) {
         try {
@@ -21,7 +21,7 @@ class AdminController {
     }
 
     /**
-     * Create a new category
+     * 建立新類別
      */
     async createCategory(req, res) {
         try {
@@ -54,7 +54,7 @@ class AdminController {
     }
 
     /**
-     * Update a category
+     * 更新類別
      */
     async updateCategory(req, res) {
         try {
@@ -99,7 +99,7 @@ class AdminController {
     }
 
     /**
-     * Get all users
+     * 取得所有使用者
      */
     async getUsers(req, res) {
         try {
@@ -118,7 +118,7 @@ class AdminController {
     }
 
     /**
-     * Create a new user
+     * 建立新使用者
      */
     async createUser(req, res) {
         try {
@@ -159,7 +159,7 @@ class AdminController {
     }
 
     /**
-     * Update a user
+     * 更新使用者
      */
     async updateUser(req, res) {
         try {
@@ -211,7 +211,7 @@ class AdminController {
     }
 
     /**
-     * Get workflow configuration for a category
+     * 取得類別的簽核流程設定
      */
     async getWorkflowConfig(req, res) {
         try {
@@ -233,7 +233,7 @@ class AdminController {
     }
 
     /**
-     * Update workflow configuration
+     * 更新簽核流程設定
      */
     async updateWorkflowConfig(req, res) {
         try {
@@ -281,7 +281,7 @@ class AdminController {
     }
 
     /**
-     * Get audit logs
+     * 取得稽核紀錄
      */
     async getAuditLogs(req, res) {
         try {

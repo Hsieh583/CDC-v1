@@ -15,7 +15,7 @@ class Database {
 
     run(sql, params = []) {
         return new Promise((resolve, reject) => {
-            this.db.run(sql, params, function(err) {
+            this.db.run(sql, params, function (err) {
                 if (err) {
                     reject(err);
                 } else {
@@ -62,5 +62,5 @@ class Database {
     }
 }
 
-// Export singleton instance
+// 匯出單例實體
 module.exports = new Database();

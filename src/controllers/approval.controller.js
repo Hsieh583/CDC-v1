@@ -4,7 +4,7 @@ const DocumentModel = require('../models/document.model');
 
 class ApprovalController {
     /**
-     * Submit version for review (Stage 1 -> Stage 2)
+     * 提交版本進行審核（階段 1 -> 階段 2）
      */
     async submitForReview(req, res) {
         try {
@@ -16,7 +16,7 @@ class ApprovalController {
                 return res.status(404).json({ error: 'Version not found' });
             }
 
-            // Update version status
+            // 更新版本狀態
             await VersionModel.update(version_id, {
                 status: 'pending_review',
                 approval_stage: 2
@@ -33,7 +33,7 @@ class ApprovalController {
     }
 
     /**
-     * Review version (Stage 2)
+     * 審核版本（階段 2）
      */
     async reviewVersion(req, res) {
         try {
@@ -49,7 +49,7 @@ class ApprovalController {
                 return res.status(404).json({ error: 'Version not found' });
             }
 
-            // Create approval record
+            // 建立簽核紀錄
             await ApprovalModel.create({
                 version_id,
                 stage_number: 2,
@@ -58,9 +58,9 @@ class ApprovalController {
                 comments
             });
 
-            // Update version based on action
+            // 根據動作更新版本
             if (action === 'approved') {
-                // Move to approval stage
+                // 移至核准階段
                 await VersionModel.update(version_id, {
                     status: 'pending_approval',
                     approval_stage: 3
@@ -87,7 +87,7 @@ class ApprovalController {
     }
 
     /**
-     * Approve version (Stage 3 - Final Approval)
+     * 核准版本（階段 3 - 最終核准）
      */
     async approveVersion(req, res) {
         try {
@@ -103,7 +103,7 @@ class ApprovalController {
                 return res.status(404).json({ error: 'Version not found' });
             }
 
-            // Create approval record
+            // 建立簽核紀錄
             await ApprovalModel.create({
                 version_id,
                 stage_number: 3,
@@ -112,12 +112,12 @@ class ApprovalController {
                 comments
             });
 
-            // Update version based on action
+            // 根據動作更新版本
             if (action === 'approved') {
-                // Set as official version and archive old ones
+                // 設為正式版本並封存舊版本
                 await VersionModel.setAsOfficial(version_id, version.document_id);
-                
-                // Update document status
+
+                // 更新文件狀態
                 await DocumentModel.update(version.document_id, {
                     status: 'approved'
                 });
@@ -126,7 +126,7 @@ class ApprovalController {
                     status: 'rejected'
                 });
             } else if (action === 'returned') {
-                // Return to review stage
+                // 退回至審核階段
                 await VersionModel.update(version_id, {
                     status: 'pending_review',
                     approval_stage: 2
@@ -144,7 +144,7 @@ class ApprovalController {
     }
 
     /**
-     * Get pending approvals for current user
+     * 取得目前使用者的待簽核項目
      */
     async getPendingApprovals(req, res) {
         try {
@@ -164,7 +164,7 @@ class ApprovalController {
     }
 
     /**
-     * Get approval history for a version
+     * 取得版本的簽核歷史紀錄
      */
     async getApprovalHistory(req, res) {
         try {
@@ -182,7 +182,7 @@ class ApprovalController {
     }
 
     /**
-     * Get approval workflow for a category
+     * 取得類別的簽核流程
      */
     async getWorkflow(req, res) {
         try {

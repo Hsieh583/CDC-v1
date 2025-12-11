@@ -6,7 +6,7 @@ require('dotenv').config();
 const dbPath = process.env.DATABASE_PATH || './data/cdc.db';
 const schemaPath = path.join(__dirname, 'schema.sql');
 
-// Ensure data directory exists
+// 確保資料目錄存在
 const dataDir = path.dirname(dbPath);
 if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
@@ -20,7 +20,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
     console.log('Connected to the CDC database.');
 });
 
-// Read and execute schema
+// 讀取並執行架構
 const schema = fs.readFileSync(schemaPath, 'utf8');
 
 db.exec(schema, (err) => {
@@ -29,14 +29,14 @@ db.exec(schema, (err) => {
         process.exit(1);
     }
     console.log('Database schema created successfully.');
-    
-    // Insert default data
+
+    // 插入預設資料
     insertDefaultData();
 });
 
 function insertDefaultData() {
     db.serialize(() => {
-        // Insert default admin user
+        // 插入預設管理員使用者
         db.run(`
             INSERT OR IGNORE INTO users (username, email, full_name, role)
             VALUES ('admin', 'admin@company.com', 'System Administrator', 'admin')
@@ -45,7 +45,7 @@ function insertDefaultData() {
             else console.log('Default admin user created.');
         });
 
-        // Insert default categories
+        // 插入預設類別
         const categories = [
             ['QMS', '品質管理文件', 'Quality Management System documents'],
             ['SOP', '標準作業程序', 'Standard Operating Procedures'],
@@ -69,25 +69,25 @@ function insertDefaultData() {
             console.log('Default categories created.');
         });
 
-        // Insert default approval workflows
+        // 插入預設簽核流程
         const workflows = [
-            // QMS workflows (3 stages)
+            // QMS 簽核流程（3 階段）
             [1, 1, '作者提交', 'author'],
             [1, 2, '審核人審核', 'reviewer'],
             [1, 3, '核准人核准', 'approver'],
-            // SOP workflows
+            // SOP 簽核流程
             [2, 1, '作者提交', 'author'],
             [2, 2, '審核人審核', 'reviewer'],
             [2, 3, '核准人核准', 'approver'],
-            // SPEC workflows
+            // SPEC 簽核流程
             [3, 1, '作者提交', 'author'],
             [3, 2, '審核人審核', 'reviewer'],
             [3, 3, '核准人核准', 'approver'],
-            // FORM workflows
+            // FORM 簽核流程
             [4, 1, '作者提交', 'author'],
             [4, 2, '審核人審核', 'reviewer'],
             [4, 3, '核准人核准', 'approver'],
-            // PROC workflows
+            // PROC 簽核流程
             [5, 1, '作者提交', 'author'],
             [5, 2, '審核人審核', 'reviewer'],
             [5, 3, '核准人核准', 'approver']

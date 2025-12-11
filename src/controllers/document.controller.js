@@ -7,14 +7,14 @@ const path = require('path');
 
 class DocumentController {
     /**
-     * Create a new document
+     * 建立新文件
      */
     async createDocument(req, res) {
         try {
             const { title, category_id, description } = req.body;
             const author_id = req.user?.id || 1; // Default to admin for demo
 
-            // Generate document code
+            // 產生文件代碼
             const category = await req.db.get('SELECT code FROM categories WHERE id = ?', [category_id]);
             if (!category) {
                 return res.status(400).json({ error: 'Invalid category' });
@@ -23,7 +23,7 @@ class DocumentController {
             const timestamp = Date.now();
             const document_code = `${category.code}-${timestamp}`;
 
-            // Create document
+            // 建立文件
             const documentId = await DocumentModel.create({
                 document_code,
                 title,
@@ -46,7 +46,7 @@ class DocumentController {
     }
 
     /**
-     * Upload a new version of a document
+     * 上傳文件的新版本
      */
     async uploadVersion(req, res) {
         try {
@@ -58,16 +58,16 @@ class DocumentController {
                 return res.status(400).json({ error: 'No file uploaded' });
             }
 
-            // Get document
+            // 取得文件
             const document = await DocumentModel.findById(document_id);
             if (!document) {
                 return res.status(404).json({ error: 'Document not found' });
             }
 
-            // Get next version number
+            // 取得下一個版本號
             const version_number = await VersionModel.getNextVersionNumber(document_id);
 
-            // Upload to SharePoint
+            // 上傳至 SharePoint
             const uploadResult = await sharePointService.uploadFile(
                 file.path,
                 document.document_code,
@@ -75,7 +75,7 @@ class DocumentController {
                 file.originalname
             );
 
-            // Create version record
+            // 建立版本紀錄
             const versionId = await VersionModel.create({
                 document_id,
                 version_number,
@@ -89,7 +89,7 @@ class DocumentController {
                 author_id
             });
 
-            // Create initial approval record (submission)
+            // 建立初始簽核紀錄（提交）
             await ApprovalModel.create({
                 version_id: versionId,
                 stage_number: 1,
@@ -98,7 +98,7 @@ class DocumentController {
                 comments: 'Initial submission'
             });
 
-            // Update document status and version
+            // 更新文件狀態與版本
             await DocumentModel.update(document_id, {
                 current_version: version_number,
                 status: 'in_review'
@@ -118,7 +118,7 @@ class DocumentController {
     }
 
     /**
-     * Get document details
+     * 取得文件詳情
      */
     async getDocument(req, res) {
         try {
@@ -129,7 +129,7 @@ class DocumentController {
                 return res.status(404).json({ error: 'Document not found' });
             }
 
-            // Get versions
+            // 取得版本列表
             const versions = await VersionModel.findByDocumentId(id);
 
             res.json({
@@ -146,7 +146,7 @@ class DocumentController {
     }
 
     /**
-     * Search documents
+     * 搜尋文件
      */
     async searchDocuments(req, res) {
         try {
@@ -171,14 +171,14 @@ class DocumentController {
     }
 
     /**
-     * Get version history
+     * 取得版本歷史紀錄
      */
     async getVersionHistory(req, res) {
         try {
             const { document_id } = req.params;
             const versions = await VersionModel.findByDocumentId(document_id);
 
-            // Get approval records for each version
+            // 取得每個版本的簽核紀錄
             const versionsWithApprovals = await Promise.all(
                 versions.map(async (version) => {
                     const approvals = await ApprovalModel.findByVersionId(version.id);
@@ -197,7 +197,7 @@ class DocumentController {
     }
 
     /**
-     * Download official version
+     * 下載正式版本
      */
     async downloadOfficialVersion(req, res) {
         try {
@@ -208,16 +208,16 @@ class DocumentController {
                 return res.status(404).json({ error: 'No official version found' });
             }
 
-            // Check if file exists locally
+            // 檢查檔案是否存在於本機
             const filePath = version.file_path;
             try {
                 await fs.access(filePath);
                 res.download(filePath, version.file_name);
             } catch (err) {
-                // If not found locally, would download from SharePoint
-                res.status(404).json({ 
+                // 若本機找不到，則從 SharePoint 下載
+                res.status(404).json({
                     error: 'File not found locally',
-                    sharepoint_path: version.sharepoint_path 
+                    sharepoint_path: version.sharepoint_path
                 });
             }
         } catch (error) {
@@ -227,7 +227,7 @@ class DocumentController {
     }
 
     /**
-     * Get all documents (with pagination)
+     * 取得所有文件（含分頁）
      */
     async getAllDocuments(req, res) {
         try {

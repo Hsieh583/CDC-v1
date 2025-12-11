@@ -1,23 +1,23 @@
-// API Base Configuration
+// API 基礎設定
 const API_BASE_URL = window.location.origin;
 
-// Get current user ID from session storage
+// 從工作階段儲存空間取得目前使用者 ID
 function getCurrentUserId() {
     return sessionStorage.getItem('userId') || '1';
 }
 
-// Set current user ID
+// 設定目前使用者 ID
 function setCurrentUserId(userId) {
     sessionStorage.setItem('userId', userId);
 }
 
-// Get user info from session
+// 從工作階段取得使用者資訊
 function getCurrentUser() {
     const userStr = sessionStorage.getItem('user');
     return userStr ? JSON.parse(userStr) : null;
 }
 
-// Set user info
+// 設定使用者資訊
 function setCurrentUser(user) {
     sessionStorage.setItem('user', JSON.stringify(user));
     if (user && user.id) {
@@ -25,15 +25,15 @@ function setCurrentUser(user) {
     }
 }
 
-// Clear session
+// 清除工作階段
 function clearSession() {
     sessionStorage.clear();
 }
 
-// Common fetch wrapper with error handling
+// 包含錯誤處理的通用 fetch 包裝函式
 async function apiRequest(endpoint, options = {}) {
     const userId = getCurrentUserId();
-    
+
     const defaultOptions = {
         headers: {
             'X-User-ID': userId,
@@ -41,7 +41,7 @@ async function apiRequest(endpoint, options = {}) {
         }
     };
 
-    // Merge options
+    // 合併選項
     const fetchOptions = {
         ...options,
         headers: {
@@ -50,26 +50,26 @@ async function apiRequest(endpoint, options = {}) {
         }
     };
 
-    // Add Content-Type for JSON requests
+    // 為 JSON 請求加入 Content-Type
     if (options.body && typeof options.body === 'string') {
         fetchOptions.headers['Content-Type'] = 'application/json';
     }
 
     try {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, fetchOptions);
-        
-        // Check if response is JSON
+
+        // 檢查回應是否為 JSON
         const contentType = response.headers.get('content-type');
         if (contentType && contentType.includes('application/json')) {
             const data = await response.json();
-            
+
             if (!response.ok) {
                 throw new Error(data.error || `HTTP error! status: ${response.status}`);
             }
-            
+
             return data;
         } else {
-            // For non-JSON responses (like file downloads)
+            // 對於非 JSON 回應（如檔案下載）
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -81,32 +81,32 @@ async function apiRequest(endpoint, options = {}) {
     }
 }
 
-// API Methods
+// API 方法
 
-// Documents API
+// 文件 API
 const DocumentsAPI = {
-    // Get all documents
+    // 取得所有文件
     getAll: (page = 1, limit = 20) => {
         return apiRequest(`/api/documents?page=${page}&limit=${limit}`);
     },
 
-    // Search documents
+    // 搜尋文件
     search: (params) => {
         const queryString = new URLSearchParams(params).toString();
         return apiRequest(`/api/documents/search?${queryString}`);
     },
 
-    // Get document by ID
+    // 依 ID 取得文件
     getById: (id) => {
         return apiRequest(`/api/documents/${id}`);
     },
 
-    // Get document versions
+    // 取得文件版本
     getVersions: (documentId) => {
         return apiRequest(`/api/documents/${documentId}/versions`);
     },
 
-    // Create new document
+    // 建立新文件
     create: (data) => {
         return apiRequest('/api/documents', {
             method: 'POST',
@@ -114,7 +114,7 @@ const DocumentsAPI = {
         });
     },
 
-    // Upload version
+    // 上傳版本
     uploadVersion: (formData) => {
         return apiRequest('/api/documents/upload-version', {
             method: 'POST',
@@ -122,31 +122,31 @@ const DocumentsAPI = {
         });
     },
 
-    // Download official version
+    // 下載正式版本
     download: async (documentId) => {
         const response = await apiRequest(`/api/documents/${documentId}/download`);
         return response.blob();
     }
 };
 
-// Approvals API
+// 簽核 API
 const ApprovalsAPI = {
-    // Get pending approvals
+    // 取得待簽核項目
     getPending: () => {
         return apiRequest('/api/approvals/pending');
     },
 
-    // Get approval history
+    // 取得簽核歷史
     getHistory: (versionId) => {
         return apiRequest(`/api/approvals/history/${versionId}`);
     },
 
-    // Get workflow
+    // 取得工作流程
     getWorkflow: (categoryId) => {
         return apiRequest(`/api/approvals/workflow/${categoryId}`);
     },
 
-    // Submit for review
+    // 提交審核
     submit: (versionId) => {
         return apiRequest('/api/approvals/submit', {
             method: 'POST',
@@ -154,7 +154,7 @@ const ApprovalsAPI = {
         });
     },
 
-    // Review version
+    // 審核版本
     review: (versionId, action, comments) => {
         return apiRequest('/api/approvals/review', {
             method: 'POST',
@@ -166,7 +166,7 @@ const ApprovalsAPI = {
         });
     },
 
-    // Approve version
+    // 核准版本
     approve: (versionId, action, comments) => {
         return apiRequest('/api/approvals/approve', {
             method: 'POST',
@@ -179,9 +179,9 @@ const ApprovalsAPI = {
     }
 };
 
-// Admin API
+// 管理員 API
 const AdminAPI = {
-    // Categories
+    // 類別
     getCategories: () => {
         return apiRequest('/api/admin/categories');
     },
@@ -200,7 +200,7 @@ const AdminAPI = {
         });
     },
 
-    // Users
+    // 使用者
     getUsers: () => {
         return apiRequest('/api/admin/users');
     },
@@ -219,7 +219,7 @@ const AdminAPI = {
         });
     },
 
-    // Workflow
+    // 工作流程
     getWorkflow: (categoryId) => {
         return apiRequest(`/api/admin/workflow/${categoryId}`);
     },
@@ -231,13 +231,13 @@ const AdminAPI = {
         });
     },
 
-    // Audit Logs
+    // 稽核紀錄
     getAuditLogs: (page = 1, limit = 50) => {
         return apiRequest(`/api/admin/audit-logs?page=${page}&limit=${limit}`);
     }
 };
 
-// Health Check
+// 健康檢查
 async function healthCheck() {
     return apiRequest('/health');
 }

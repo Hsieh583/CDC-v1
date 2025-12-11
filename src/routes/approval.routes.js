@@ -4,10 +4,10 @@ const approvalController = require('../controllers/approval.controller');
 const { authenticate, authorize } = require('../middleware/auth');
 const { apiLimiter, strictLimiter } = require('../middleware/rateLimiter');
 
-// Apply general API rate limiting to all routes
+// 對所有路由套用一般 API 速率限制
 router.use(apiLimiter);
 
-// Approval routes with stricter rate limiting on write operations
+// 簽核路由在寫入操作上有更嚴格的速率限制
 router.post('/submit', authenticate, strictLimiter, authorize('author', 'admin'), approvalController.submitForReview);
 router.post('/review', authenticate, strictLimiter, authorize('reviewer', 'admin'), approvalController.reviewVersion);
 router.post('/approve', authenticate, strictLimiter, authorize('approver', 'admin'), approvalController.approveVersion);

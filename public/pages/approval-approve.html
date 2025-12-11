@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,8 +9,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/css/style.css">
 </head>
+
 <body>
-    <!-- Navigation -->
+    <!-- 導覽列 -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
             <a class="navbar-brand" href="/pages/dashboard.html">
@@ -51,25 +53,25 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
+    <!-- 主要內容 -->
     <div class="container-fluid mt-4">
         <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/pages/dashboard.html">首頁</a></li>
-                    <li class="breadcrumb-item"><a href="/pages/approvals.html">簽核管理</a></li>
-                    <li class="breadcrumb-item active">核准文件</li>
-                </ol>
-            </nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/pages/dashboard.html">首頁</a></li>
+                <li class="breadcrumb-item"><a href="/pages/approvals.html">簽核管理</a></li>
+                <li class="breadcrumb-item active">核准文件</li>
+            </ol>
+        </nav>
 
-            <div id="alerts"></div>
-            <div id="content">
-                <div class="text-center p-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">載入中...</span>
-                    </div>
+        <div id="alerts"></div>
+        <div id="content">
+            <div class="text-center p-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">載入中...</span>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -80,14 +82,14 @@
         let versionData;
 
         document.addEventListener('DOMContentLoaded', async () => {
-            // Check if user is admin and hide admin links if not
+            // 檢查使用者是否為管理員，若否則隱藏管理員連結
             const user = getCurrentUser();
             if (!user || user.role !== 'admin') {
                 const adminLink = document.getElementById('adminLink');
                 if (adminLink) adminLink.style.display = 'none';
             }
 
-            // Get version ID from URL
+            // 從 URL 取得版本 ID
             const urlParams = new URLSearchParams(window.location.search);
             versionId = urlParams.get('id');
 
@@ -101,11 +103,11 @@
 
         async function loadVersionInfo() {
             try {
-                // Load version and approval history
+                // 載入版本與簽核歷史
                 const historyResponse = await ApprovalsAPI.getHistory(versionId);
                 const history = historyResponse.data || [];
 
-                // Find the version info from pending approvals
+                // 從待簽核項目中尋找版本資訊
                 const pendingResponse = await ApprovalsAPI.getPending();
                 const pending = pendingResponse.data || [];
                 versionData = pending.find(p => p.version_id == versionId);
@@ -126,7 +128,7 @@
             const html = `
                 <div class="row">
                     <div class="col-lg-8 mx-auto">
-                        <!-- Version Info -->
+                        <!-- 版本資訊 -->
                         <div class="card mb-4">
                             <div class="card-header bg-success text-white">
                                 <h5 class="mb-0"><i class="bi bi-file-text me-2"></i>文件核准 - Stage 3</h5>
@@ -157,7 +159,7 @@
                             </div>
                         </div>
 
-                        <!-- Approval History -->
+                        <!-- 簽核歷史 -->
                         <div class="card mb-4">
                             <div class="card-header">
                                 <h6 class="mb-0"><i class="bi bi-clock-history me-2"></i>簽核記錄</h6>
@@ -167,7 +169,7 @@
                             </div>
                         </div>
 
-                        <!-- Approval Form -->
+                        <!-- 核准表單 -->
                         <div class="card">
                             <div class="card-header">
                                 <h6 class="mb-0"><i class="bi bi-pencil-square me-2"></i>核准決定</h6>
@@ -208,7 +210,7 @@
 
             document.getElementById('content').innerHTML = html;
 
-            // Setup form handler
+            // 設定表單處理常式
             document.getElementById('approvalForm').addEventListener('submit', handleApproval);
         }
 
@@ -257,7 +259,7 @@
 
             try {
                 await ApprovalsAPI.approve(versionId, action, comments);
-                
+
                 showToast(`文件${getActionText(action)}成功！`, 'success');
                 setTimeout(() => {
                     window.location.href = '/pages/approvals.html';
@@ -279,4 +281,5 @@
         }
     </script>
 </body>
+
 </html>

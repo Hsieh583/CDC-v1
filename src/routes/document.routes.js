@@ -6,16 +6,16 @@ const { authenticate, authorize } = require('../middleware/auth');
 const { uploadLimiter, apiLimiter } = require('../middleware/rateLimiter');
 const db = require('../database/db');
 
-// Attach database to request
+// 將資料庫附加至請求
 router.use((req, res, next) => {
     req.db = db;
     next();
 });
 
-// Apply general API rate limiting to all routes
+// 對所有路由套用一般 API 速率限制
 router.use(apiLimiter);
 
-// Document routes
+// 文件路由
 router.post('/', authenticate, documentController.createDocument);
 router.post('/upload-version', authenticate, uploadLimiter, upload.single('file'), documentController.uploadVersion);
 router.get('/', authenticate, documentController.getAllDocuments);

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,8 +9,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/css/style.css">
 </head>
+
 <body>
-    <!-- Navigation -->
+    <!-- 導覽列 -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
             <a class="navbar-brand" href="/pages/dashboard.html">
@@ -51,7 +53,7 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
+    <!-- 主要內容 -->
     <div class="container-fluid mt-4">
         <div class="row">
             <div class="col-12">
@@ -69,7 +71,7 @@
         <div class="container-fluid">
             <div id="alerts"></div>
 
-            <!-- Pending Approvals -->
+            <!-- 待簽核項目 -->
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span><i class="bi bi-list-check me-2"></i>待辦事項</span>
@@ -110,7 +112,7 @@
     <script src="/js/utils.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-            // Check if user is admin and hide admin links if not
+            // 檢查使用者是否為管理員，若否則隱藏管理員連結
             const user = getCurrentUser();
             if (!user || user.role !== 'admin') {
                 const adminLink = document.getElementById('adminLink');
@@ -156,8 +158,8 @@
 
             let html = '';
             approvals.forEach(approval => {
-                const actionPage = approval.approval_stage === 2 
-                    ? 'approval-review.html' 
+                const actionPage = approval.approval_stage === 2
+                    ? 'approval-review.html'
                     : 'approval-approve.html';
 
                 html += `
@@ -181,4 +183,5 @@
         }
     </script>
 </body>
+
 </html>
