@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登入 - CDC 文件管制中心</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-light">
+    <div class="container">
+        <div class="row justify-content-center align-items-center min-vh-100">
+            <div class="col-md-6 col-lg-5">
+                <div class="card shadow-lg border-0">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <i class="bi bi-file-earmark-check text-primary" style="font-size: 4rem;"></i>
+                            <h2 class="mt-3 mb-2">CDC 文件管制中心</h2>
+                            <p class="text-muted">Document Control Center</p>
+                        </div>
+
+                        <div id="alerts"></div>
+
+                        <form id="loginForm">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">使用者帳號</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-person"></i>
+                                    </span>
+                                    <select class="form-select" id="username" required>
+                                        <option value="">選擇使用者...</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg" id="loginBtn">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i>登入系統
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="text-center mt-4">
+                            <small class="text-muted">
+                                <i class="bi bi-shield-check me-1"></i>
+                                安全的文件管理平台
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-3 text-muted">
+                    <small>&copy; 2024 CDC Document Control Center. All rights reserved.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/utils.js"></script>
+    <script>
+        // Don't check auth on login page
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Clear any existing session
+            clearSession();
+
+            // Load users for login
+            await loadUsers();
+
+            // Handle login form submission
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+        });
+
+        async function loadUsers() {
+            try {
+                // Temporarily set user ID to 1 to fetch users list
+                setCurrentUserId('1');
+                
+                const response = await AdminAPI.getUsers();
+                const users = response.data;
+
+                const select = document.getElementById('username');
+                select.innerHTML = '<option value="">選擇使用者...</option>';
+
+                users.forEach(user => {
+                    if (user.is_active) {
+                        const option = document.createElement('option');
+                        option.value = user.id;
+                        option.textContent = `${user.full_name} (${user.username}) - ${getRoleText(user.role)}`;
+                        option.dataset.user = JSON.stringify(user);
+                        select.appendChild(option);
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading users:', error);
+                showErrorAlert('無法載入使用者列表，請檢查後端服務是否正常運作。');
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+
+            const select = document.getElementById('username');
+            const selectedOption = select.options[select.selectedIndex];
+
+            if (!selectedOption.value) {
+                showErrorAlert('請選擇使用者');
+                return;
+            }
+
+            const user = JSON.parse(selectedOption.dataset.user);
+
+            // Store user info in session
+            setCurrentUser(user);
+
+            // Show success message
+            showSuccessAlert(`歡迎回來，${user.full_name}！`);
+
+            // Redirect to dashboard
+            setTimeout(() => {
+                window.location.href = '/pages/dashboard.html';
+            }, 500);
+        }
+
+        function getRoleText(role) {
+            const roleMap = {
+                'admin': '管理員',
+                'author': '作者',
+                'reviewer': '審核人',
+                'approver': '核准人',
+                'viewer': '檢視者'
+            };
+            return roleMap[role] || role;
+        }
+
+        function showErrorAlert(message) {
+            const alerts = document.getElementById('alerts');
+            alerts.innerHTML = `
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+        }
+
+        function showSuccessAlert(message) {
+            const alerts = document.getElementById('alerts');
+            alerts.innerHTML = `
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i>${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

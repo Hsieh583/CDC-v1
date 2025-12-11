@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>儀表板 - CDC 文件管制中心</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/pages/dashboard.html">
+                <i class="bi bi-file-earmark-check me-2"></i>CDC 文件管制中心
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/pages/dashboard.html">
+                            <i class="bi bi-speedometer2 me-1"></i>儀表板
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/pages/documents.html">
+                            <i class="bi bi-files me-1"></i>文件管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/pages/approvals.html">
+                            <i class="bi bi-clipboard-check me-1"></i>簽核管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/pages/admin.html" id="adminLink">
+                            <i class="bi bi-gear me-1"></i>系統管理
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center text-white">
+                    <span id="userInfo" class="me-3"></span>
+                    <button class="btn btn-outline-light btn-sm" id="logoutBtn">
+                        <i class="bi bi-box-arrow-right me-1"></i>登出
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="page-header">
+                    <div class="container-fluid">
+                        <h1 class="page-title">
+                            <i class="bi bi-speedometer2 me-2"></i>儀表板
+                        </h1>
+                        <p class="page-subtitle">歡迎使用 CDC 文件管制中心</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid">
+            <div id="alerts"></div>
+
+            <!-- Statistics Cards -->
+            <div class="row mb-4" id="statsCards">
+                <!-- Stats will be loaded here -->
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="row mb-4">
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="card hover-shadow cursor-pointer" onclick="window.location.href='/pages/upload.html'">
+                        <div class="card-body text-center">
+                            <i class="bi bi-cloud-upload text-primary" style="font-size: 3rem;"></i>
+                            <h5 class="mt-3">上傳文件</h5>
+                            <p class="text-muted">建立新文件或上傳新版本</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="card hover-shadow cursor-pointer" onclick="window.location.href='/pages/documents.html'">
+                        <div class="card-body text-center">
+                            <i class="bi bi-search text-success" style="font-size: 3rem;"></i>
+                            <h5 class="mt-3">查詢文件</h5>
+                            <p class="text-muted">搜尋與檢視所有文件</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="card hover-shadow cursor-pointer" onclick="window.location.href='/pages/approvals.html'">
+                        <div class="card-body text-center">
+                            <i class="bi bi-clipboard-check text-warning" style="font-size: 3rem;"></i>
+                            <h5 class="mt-3">待辦簽核</h5>
+                            <p class="text-muted">處理待審核與待核准文件</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="card hover-shadow cursor-pointer" onclick="window.location.href='/pages/admin.html'" id="adminCard">
+                        <div class="card-body text-center">
+                            <i class="bi bi-gear text-danger" style="font-size: 3rem;"></i>
+                            <h5 class="mt-3">系統管理</h5>
+                            <p class="text-muted">使用者與類別管理</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Documents -->
+            <div class="row">
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-clock-history me-2"></i>最近文件
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="recentDocuments">
+                                <div class="text-center p-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">載入中...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending Approvals -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-exclamation-circle me-2"></i>待辦事項
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="pendingApprovals">
+                                <div class="text-center p-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">載入中...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/utils.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check if user is admin and hide admin links if not
+            const user = getCurrentUser();
+            if (!user || user.role !== 'admin') {
+                const adminLink = document.getElementById('adminLink');
+                const adminCard = document.getElementById('adminCard');
+                if (adminLink) adminLink.style.display = 'none';
+                if (adminCard) adminCard.style.display = 'none';
+            }
+
+            // Load dashboard data
+            await loadDashboard();
+        });
+
+        async function loadDashboard() {
+            try {
+                // Load statistics
+                await loadStatistics();
+
+                // Load recent documents
+                await loadRecentDocuments();
+
+                // Load pending approvals
+                await loadPendingApprovals();
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                showToast('載入儀表板資料時發生錯誤', 'error');
+            }
+        }
+
+        async function loadStatistics() {
+            try {
+                // Get documents and approvals data
+                const documentsResponse = await DocumentsAPI.search({});
+                const approvalsResponse = await ApprovalsAPI.getPending();
+
+                const documents = documentsResponse.data || [];
+                const pendingApprovals = approvalsResponse.data || [];
+
+                // Count by status
+                const draftCount = documents.filter(d => d.status === 'draft').length;
+                const approvedCount = documents.filter(d => d.status === 'approved').length;
+                const pendingCount = documents.filter(d => 
+                    d.status === 'pending_review' || d.status === 'pending_approval'
+                ).length;
+
+                const statsHTML = `
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-number">${documents.length}</div>
+                            <div class="stat-label">總文件數</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-number text-success">${approvedCount}</div>
+                            <div class="stat-label">已核准文件</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-number text-warning">${pendingCount}</div>
+                            <div class="stat-label">待審核文件</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <div class="stat-card">
+                            <div class="stat-number text-info">${pendingApprovals.length}</div>
+                            <div class="stat-label">我的待辦</div>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('statsCards').innerHTML = statsHTML;
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+            }
+        }
+
+        async function loadRecentDocuments() {
+            try {
+                const response = await DocumentsAPI.getAll(1, 5);
+                const documents = response.data || [];
+
+                if (documents.length === 0) {
+                    document.getElementById('recentDocuments').innerHTML = `
+                        <div class="text-center p-4 text-muted">
+                            <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                            <p class="mt-2">尚無文件</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '<div class="list-group list-group-flush">';
+                documents.forEach(doc => {
+                    html += `
+                        <a href="/pages/document-detail.html?id=${doc.id}" class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="document-code">${doc.document_code}</div>
+                                    <div class="document-title">${doc.title}</div>
+                                    <small class="text-muted">
+                                        <i class="bi bi-clock me-1"></i>${formatDate(doc.created_at)}
+                                    </small>
+                                </div>
+                                <div>
+                                    ${getStatusBadge(doc.status)}
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                });
+                html += '</div>';
+
+                document.getElementById('recentDocuments').innerHTML = html;
+            } catch (error) {
+                console.error('Error loading recent documents:', error);
+                document.getElementById('recentDocuments').innerHTML = `
+                    <div class="alert alert-danger m-3">載入失敗</div>
+                `;
+            }
+        }
+
+        async function loadPendingApprovals() {
+            try {
+                const response = await ApprovalsAPI.getPending();
+                const approvals = response.data || [];
+
+                if (approvals.length === 0) {
+                    document.getElementById('pendingApprovals').innerHTML = `
+                        <div class="text-center p-4 text-muted">
+                            <i class="bi bi-check-circle" style="font-size: 3rem;"></i>
+                            <p class="mt-2">沒有待辦事項</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '<div class="list-group list-group-flush">';
+                approvals.forEach(approval => {
+                    const actionUrl = approval.approval_stage === 2 
+                        ? `/pages/approval-review.html?id=${approval.version_id}`
+                        : `/pages/approval-approve.html?id=${approval.version_id}`;
+                    
+                    html += `
+                        <a href="${actionUrl}" class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="document-code">${approval.document_code}</div>
+                                    <div class="document-title">${approval.title}</div>
+                                    <small class="text-muted">
+                                        版本 ${approval.version_number} - ${approval.stage_name}
+                                    </small>
+                                </div>
+                                <div>
+                                    ${getStatusBadge(approval.status)}
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                });
+                html += '</div>';
+
+                document.getElementById('pendingApprovals').innerHTML = html;
+            } catch (error) {
+                console.error('Error loading pending approvals:', error);
+                document.getElementById('pendingApprovals').innerHTML = `
+                    <div class="alert alert-danger m-3">載入失敗</div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
