@@ -2,10 +2,12 @@ const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/admin.controller');
 const { authenticate, authorize } = require('../middleware/auth');
+const { apiLimiter, strictLimiter } = require('../middleware/rateLimiter');
 
 // All admin routes require admin role
 router.use(authenticate);
 router.use(authorize('admin'));
+router.use(apiLimiter);
 
 // Category management
 router.get('/categories', adminController.getCategories);
