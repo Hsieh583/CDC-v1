@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系統管理 - CDC 文件管制中心</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/pages/dashboard.html">
+                <i class="bi bi-file-earmark-check me-2"></i>CDC 文件管制中心
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/pages/dashboard.html">
+                            <i class="bi bi-speedometer2 me-1"></i>儀表板
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/pages/documents.html">
+                            <i class="bi bi-files me-1"></i>文件管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/pages/approvals.html">
+                            <i class="bi bi-clipboard-check me-1"></i>簽核管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/pages/admin.html">
+                            <i class="bi bi-gear me-1"></i>系統管理
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center text-white">
+                    <span id="userInfo" class="me-3"></span>
+                    <button class="btn btn-outline-light btn-sm" id="logoutBtn">
+                        <i class="bi bi-box-arrow-right me-1"></i>登出
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="page-header">
+                    <div class="container-fluid">
+                        <h1 class="page-title">
+                            <i class="bi bi-gear me-2"></i>系統管理
+                        </h1>
+                        <p class="page-subtitle">管理使用者、類別與系統設定</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid">
+            <div id="alerts"></div>
+
+            <!-- Tabs -->
+            <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button">
+                        <i class="bi bi-people me-2"></i>使用者管理
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="categories-tab" data-bs-toggle="tab" data-bs-target="#categories" type="button">
+                        <i class="bi bi-folder me-2"></i>類別管理
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="audit-tab" data-bs-toggle="tab" data-bs-target="#audit" type="button">
+                        <i class="bi bi-journal-text me-2"></i>審計日誌
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content" id="adminTabContent">
+                <!-- Users Tab -->
+                <div class="tab-pane fade show active" id="users" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-people me-2"></i>使用者列表</span>
+                            <button class="btn btn-sm btn-primary" onclick="showUserModal()">
+                                <i class="bi bi-plus-circle me-1"></i>新增使用者
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>帳號</th>
+                                            <th>姓名</th>
+                                            <th>電子郵件</th>
+                                            <th>角色</th>
+                                            <th>狀態</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="usersTable">
+                                        <tr>
+                                            <td colspan="6" class="text-center">
+                                                <div class="spinner-border text-primary my-3" role="status">
+                                                    <span class="visually-hidden">載入中...</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Categories Tab -->
+                <div class="tab-pane fade" id="categories" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-folder me-2"></i>文件類別</span>
+                            <button class="btn btn-sm btn-primary" onclick="showCategoryModal()">
+                                <i class="bi bi-plus-circle me-1"></i>新增類別
+                            </button>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>代碼</th>
+                                            <th>名稱</th>
+                                            <th>描述</th>
+                                            <th>狀態</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="categoriesTable">
+                                        <tr>
+                                            <td colspan="5" class="text-center">
+                                                <div class="spinner-border text-primary my-3" role="status">
+                                                    <span class="visually-hidden">載入中...</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audit Logs Tab -->
+                <div class="tab-pane fade" id="audit" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="bi bi-journal-text me-2"></i>系統審計日誌
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>時間</th>
+                                            <th>使用者</th>
+                                            <th>動作</th>
+                                            <th>實體類型</th>
+                                            <th>實體ID</th>
+                                            <th>詳情</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="auditTable">
+                                        <tr>
+                                            <td colspan="6" class="text-center">
+                                                <div class="spinner-border text-primary my-3" role="status">
+                                                    <span class="visually-hidden">載入中...</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Modal -->
+    <div class="modal fade" id="userModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userModalTitle">新增使用者</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="userForm">
+                    <div class="modal-body">
+                        <input type="hidden" id="userId">
+                        <div class="mb-3">
+                            <label class="form-label">帳號 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="userUsername" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">姓名 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="userFullName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">電子郵件 <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="userEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">角色 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="userRole" required>
+                                <option value="viewer">檢視者</option>
+                                <option value="author">作者</option>
+                                <option value="reviewer">審核人</option>
+                                <option value="approver">核准人</option>
+                                <option value="admin">管理員</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="userIsActive" checked>
+                                <label class="form-check-label" for="userIsActive">啟用</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-primary">儲存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Modal -->
+    <div class="modal fade" id="categoryModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="categoryModalTitle">新增類別</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="categoryForm">
+                    <div class="modal-body">
+                        <input type="hidden" id="categoryId">
+                        <div class="mb-3">
+                            <label class="form-label">代碼 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="categoryCode" required maxlength="10">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">名稱 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="categoryName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">描述</label>
+                            <textarea class="form-control" id="categoryDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="categoryIsActive" checked>
+                                <label class="form-check-label" for="categoryIsActive">啟用</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-primary">儲存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/utils.js"></script>
+    <script>
+        let users = [];
+        let categories = [];
+        let userModal, categoryModal;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check admin permission
+            const user = getCurrentUser();
+            if (!user || user.role !== 'admin') {
+                showError('您沒有權限存取此頁面');
+                setTimeout(() => {
+                    window.location.href = '/pages/dashboard.html';
+                }, 2000);
+                return;
+            }
+
+            // Initialize modals
+            userModal = new bootstrap.Modal(document.getElementById('userModal'));
+            categoryModal = new bootstrap.Modal(document.getElementById('categoryModal'));
+
+            // Load data
+            await loadUsers();
+            await loadCategories();
+            await loadAuditLogs();
+
+            // Setup form handlers
+            document.getElementById('userForm').addEventListener('submit', handleUserSubmit);
+            document.getElementById('categoryForm').addEventListener('submit', handleCategorySubmit);
+
+            // Tab change handlers
+            document.getElementById('users-tab').addEventListener('shown.bs.tab', loadUsers);
+            document.getElementById('categories-tab').addEventListener('shown.bs.tab', loadCategories);
+            document.getElementById('audit-tab').addEventListener('shown.bs.tab', loadAuditLogs);
+        });
+
+        async function loadUsers() {
+            try {
+                const response = await AdminAPI.getUsers();
+                users = response.data || [];
+                displayUsers();
+            } catch (error) {
+                console.error('Error loading users:', error);
+                document.getElementById('usersTable').innerHTML = `
+                    <tr><td colspan="6" class="text-center text-danger p-4">載入失敗</td></tr>
+                `;
+            }
+        }
+
+        function displayUsers() {
+            const tbody = document.getElementById('usersTable');
+            if (users.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted p-4">尚無使用者</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            users.forEach(user => {
+                html += `
+                    <tr>
+                        <td>${user.username}</td>
+                        <td>${user.full_name}</td>
+                        <td>${user.email}</td>
+                        <td>${getRoleBadge(user.role)}</td>
+                        <td>${user.is_active ? '<span class="badge bg-success">啟用</span>' : '<span class="badge bg-secondary">停用</span>'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" onclick="editUser(${user.id})">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        async function loadCategories() {
+            try {
+                const response = await AdminAPI.getCategories();
+                categories = response.data || [];
+                displayCategories();
+            } catch (error) {
+                console.error('Error loading categories:', error);
+                document.getElementById('categoriesTable').innerHTML = `
+                    <tr><td colspan="5" class="text-center text-danger p-4">載入失敗</td></tr>
+                `;
+            }
+        }
+
+        function displayCategories() {
+            const tbody = document.getElementById('categoriesTable');
+            if (categories.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted p-4">尚無類別</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            categories.forEach(cat => {
+                html += `
+                    <tr>
+                        <td><span class="document-code">${cat.code}</span></td>
+                        <td>${cat.name}</td>
+                        <td>${cat.description || '-'}</td>
+                        <td>${cat.is_active ? '<span class="badge bg-success">啟用</span>' : '<span class="badge bg-secondary">停用</span>'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" onclick="editCategory(${cat.id})">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        async function loadAuditLogs() {
+            try {
+                const response = await AdminAPI.getAuditLogs(1, 50);
+                const logs = response.data || [];
+                displayAuditLogs(logs);
+            } catch (error) {
+                console.error('Error loading audit logs:', error);
+                document.getElementById('auditTable').innerHTML = `
+                    <tr><td colspan="6" class="text-center text-danger p-4">載入失敗</td></tr>
+                `;
+            }
+        }
+
+        function displayAuditLogs(logs) {
+            const tbody = document.getElementById('auditTable');
+            if (logs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted p-4">尚無記錄</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            logs.forEach(log => {
+                html += `
+                    <tr>
+                        <td>${formatDate(log.created_at)}</td>
+                        <td>${log.user_name || '-'}</td>
+                        <td><span class="badge bg-info">${log.action}</span></td>
+                        <td>${log.entity_type}</td>
+                        <td>${log.entity_id}</td>
+                        <td><small>${log.details || '-'}</small></td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function showUserModal(user = null) {
+            document.getElementById('userForm').reset();
+            document.getElementById('userId').value = '';
+            
+            if (user) {
+                document.getElementById('userModalTitle').textContent = '編輯使用者';
+                document.getElementById('userId').value = user.id;
+                document.getElementById('userUsername').value = user.username;
+                document.getElementById('userFullName').value = user.full_name;
+                document.getElementById('userEmail').value = user.email;
+                document.getElementById('userRole').value = user.role;
+                document.getElementById('userIsActive').checked = user.is_active;
+            } else {
+                document.getElementById('userModalTitle').textContent = '新增使用者';
+                document.getElementById('userIsActive').checked = true;
+            }
+            
+            userModal.show();
+        }
+
+        function editUser(userId) {
+            const user = users.find(u => u.id === userId);
+            if (user) showUserModal(user);
+        }
+
+        async function handleUserSubmit(e) {
+            e.preventDefault();
+            
+            const userId = document.getElementById('userId').value;
+            const data = {
+                username: document.getElementById('userUsername').value,
+                full_name: document.getElementById('userFullName').value,
+                email: document.getElementById('userEmail').value,
+                role: document.getElementById('userRole').value,
+                is_active: document.getElementById('userIsActive').checked ? 1 : 0
+            };
+
+            try {
+                if (userId) {
+                    await AdminAPI.updateUser(userId, data);
+                    showToast('使用者更新成功', 'success');
+                } else {
+                    await AdminAPI.createUser(data);
+                    showToast('使用者建立成功', 'success');
+                }
+                
+                userModal.hide();
+                await loadUsers();
+            } catch (error) {
+                console.error('Error saving user:', error);
+                showToast('儲存使用者時發生錯誤：' + error.message, 'error');
+            }
+        }
+
+        function showCategoryModal(category = null) {
+            document.getElementById('categoryForm').reset();
+            document.getElementById('categoryId').value = '';
+            
+            if (category) {
+                document.getElementById('categoryModalTitle').textContent = '編輯類別';
+                document.getElementById('categoryId').value = category.id;
+                document.getElementById('categoryCode').value = category.code;
+                document.getElementById('categoryName').value = category.name;
+                document.getElementById('categoryDescription').value = category.description || '';
+                document.getElementById('categoryIsActive').checked = category.is_active;
+            } else {
+                document.getElementById('categoryModalTitle').textContent = '新增類別';
+                document.getElementById('categoryIsActive').checked = true;
+            }
+            
+            categoryModal.show();
+        }
+
+        function editCategory(categoryId) {
+            const category = categories.find(c => c.id === categoryId);
+            if (category) showCategoryModal(category);
+        }
+
+        async function handleCategorySubmit(e) {
+            e.preventDefault();
+            
+            const categoryId = document.getElementById('categoryId').value;
+            const data = {
+                code: document.getElementById('categoryCode').value,
+                name: document.getElementById('categoryName').value,
+                description: document.getElementById('categoryDescription').value,
+                is_active: document.getElementById('categoryIsActive').checked ? 1 : 0
+            };
+
+            try {
+                if (categoryId) {
+                    await AdminAPI.updateCategory(categoryId, data);
+                    showToast('類別更新成功', 'success');
+                } else {
+                    await AdminAPI.createCategory(data);
+                    showToast('類別建立成功', 'success');
+                }
+                
+                categoryModal.hide();
+                await loadCategories();
+            } catch (error) {
+                console.error('Error saving category:', error);
+                showToast('儲存類別時發生錯誤：' + error.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

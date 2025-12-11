@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>上傳文件 - CDC 文件管制中心</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/pages/dashboard.html">
+                <i class="bi bi-file-earmark-check me-2"></i>CDC 文件管制中心
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/pages/dashboard.html">
+                            <i class="bi bi-speedometer2 me-1"></i>儀表板
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/pages/documents.html">
+                            <i class="bi bi-files me-1"></i>文件管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/pages/approvals.html">
+                            <i class="bi bi-clipboard-check me-1"></i>簽核管理
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/pages/admin.html" id="adminLink">
+                            <i class="bi bi-gear me-1"></i>系統管理
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center text-white">
+                    <span id="userInfo" class="me-3"></span>
+                    <button class="btn btn-outline-light btn-sm" id="logoutBtn">
+                        <i class="bi bi-box-arrow-right me-1"></i>登出
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid mt-4">
+        <div class="container-fluid">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/pages/dashboard.html">首頁</a></li>
+                    <li class="breadcrumb-item active">上傳文件</li>
+                </ol>
+            </nav>
+
+            <div class="page-header mb-4">
+                <h1 class="page-title">
+                    <i class="bi bi-cloud-upload me-2"></i>上傳文件
+                </h1>
+                <p class="page-subtitle">建立新文件或上傳新版本</p>
+            </div>
+
+            <div id="alerts"></div>
+
+            <!-- Upload Type Selection -->
+            <div class="row mb-4">
+                <div class="col-md-6 mx-auto">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">選擇上傳類型</h5>
+                            <div class="d-grid gap-3">
+                                <button class="btn btn-lg btn-outline-primary text-start" onclick="showNewDocumentForm()">
+                                    <i class="bi bi-file-plus me-2"></i>
+                                    <strong>建立新文件</strong>
+                                    <small class="d-block text-muted mt-1">建立全新的文件並上傳第一版</small>
+                                </button>
+                                <button class="btn btn-lg btn-outline-secondary text-start" onclick="showNewVersionForm()">
+                                    <i class="bi bi-arrow-repeat me-2"></i>
+                                    <strong>上傳新版本</strong>
+                                    <small class="d-block text-muted mt-1">為現有文件上傳新的版本</small>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Document Form -->
+            <div class="row" id="newDocumentForm" style="display: none;">
+                <div class="col-md-8 mx-auto">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="bi bi-file-plus me-2"></i>建立新文件並上傳第一版</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="createDocumentForm">
+                                <div class="mb-3">
+                                    <label class="form-label">文件標題 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="newDocTitle" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">文件類別 <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="newDocCategory" required>
+                                        <option value="">選擇類別...</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">文件描述</label>
+                                    <textarea class="form-control" id="newDocDescription" rows="3"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">版本標題 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="newDocVersionTitle" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">版本描述</label>
+                                    <textarea class="form-control" id="newDocVersionDescription" rows="2"></textarea>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">上傳檔案 <span class="text-danger">*</span></label>
+                                    <input type="file" class="form-control" id="newDocFile" accept=".pdf,.doc,.docx" required>
+                                    <small class="text-muted">支援格式：PDF, DOC, DOCX (最大 50MB)</small>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-cloud-upload me-2"></i>建立並上傳
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" onclick="resetForms()">
+                                        取消
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Version Form -->
+            <div class="row" id="newVersionForm" style="display: none;">
+                <div class="col-md-8 mx-auto">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="bi bi-arrow-repeat me-2"></i>上傳新版本</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="uploadVersionForm">
+                                <div class="mb-3">
+                                    <label class="form-label">選擇文件 <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="existingDocument" required>
+                                        <option value="">搜尋並選擇文件...</option>
+                                    </select>
+                                    <small class="text-muted">只顯示您有權限上傳版本的文件</small>
+                                </div>
+                                <div id="selectedDocInfo" style="display: none;" class="alert alert-info mb-3">
+                                    <!-- Document info will be displayed here -->
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">版本標題 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="versionTitle" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">版本描述</label>
+                                    <textarea class="form-control" id="versionDescription" rows="3" placeholder="描述此版本的變更內容..."></textarea>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label">上傳檔案 <span class="text-danger">*</span></label>
+                                    <input type="file" class="form-control" id="versionFile" accept=".pdf,.doc,.docx" required>
+                                    <small class="text-muted">支援格式：PDF, DOC, DOCX (最大 50MB)</small>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-cloud-upload me-2"></i>上傳版本
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" onclick="resetForms()">
+                                        取消
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/utils.js"></script>
+    <script>
+        let categories = [];
+        let documents = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check if user is admin and hide admin links if not
+            const user = getCurrentUser();
+            if (!user || user.role !== 'admin') {
+                const adminLink = document.getElementById('adminLink');
+                if (adminLink) adminLink.style.display = 'none';
+            }
+
+            await loadCategories();
+            await loadDocuments();
+
+            // Setup form handlers
+            document.getElementById('createDocumentForm').addEventListener('submit', handleCreateDocument);
+            document.getElementById('uploadVersionForm').addEventListener('submit', handleUploadVersion);
+            document.getElementById('existingDocument').addEventListener('change', handleDocumentSelection);
+        });
+
+        async function loadCategories() {
+            try {
+                const response = await AdminAPI.getCategories();
+                categories = response.data || [];
+
+                const select = document.getElementById('newDocCategory');
+                categories.forEach(cat => {
+                    if (cat.is_active) {
+                        const option = document.createElement('option');
+                        option.value = cat.id;
+                        option.textContent = `${cat.code} - ${cat.name}`;
+                        select.appendChild(option);
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+
+        async function loadDocuments() {
+            try {
+                const response = await DocumentsAPI.search({});
+                documents = response.data || [];
+
+                const select = document.getElementById('existingDocument');
+                documents.forEach(doc => {
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = `${doc.document_code} - ${doc.title}`;
+                    option.dataset.doc = JSON.stringify(doc);
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading documents:', error);
+            }
+        }
+
+        function showNewDocumentForm() {
+            document.getElementById('newDocumentForm').style.display = 'block';
+            document.getElementById('newVersionForm').style.display = 'none';
+        }
+
+        function showNewVersionForm() {
+            document.getElementById('newDocumentForm').style.display = 'none';
+            document.getElementById('newVersionForm').style.display = 'block';
+        }
+
+        function resetForms() {
+            document.getElementById('newDocumentForm').style.display = 'none';
+            document.getElementById('newVersionForm').style.display = 'none';
+            document.getElementById('createDocumentForm').reset();
+            document.getElementById('uploadVersionForm').reset();
+            document.getElementById('selectedDocInfo').style.display = 'none';
+        }
+
+        function handleDocumentSelection(e) {
+            const select = e.target;
+            const option = select.options[select.selectedIndex];
+            
+            if (option.value && option.dataset.doc) {
+                const doc = JSON.parse(option.dataset.doc);
+                document.getElementById('selectedDocInfo').style.display = 'block';
+                document.getElementById('selectedDocInfo').innerHTML = `
+                    <strong>文件代碼：</strong> ${doc.document_code}<br>
+                    <strong>目前版本：</strong> ${doc.current_version || 0}<br>
+                    <strong>狀態：</strong> ${getStatusBadge(doc.status)}
+                `;
+            } else {
+                document.getElementById('selectedDocInfo').style.display = 'none';
+            }
+        }
+
+        async function handleCreateDocument(e) {
+            e.preventDefault();
+
+            const title = document.getElementById('newDocTitle').value;
+            const categoryId = document.getElementById('newDocCategory').value;
+            const description = document.getElementById('newDocDescription').value;
+            const versionTitle = document.getElementById('newDocVersionTitle').value;
+            const versionDescription = document.getElementById('newDocVersionDescription').value;
+            const file = document.getElementById('newDocFile').files[0];
+
+            if (!file) {
+                showToast('請選擇要上傳的檔案', 'error');
+                return;
+            }
+
+            try {
+                // Create document
+                const createResponse = await DocumentsAPI.create({
+                    title: title,
+                    category_id: parseInt(categoryId),
+                    description: description
+                });
+
+                const documentId = createResponse.data.id;
+
+                // Upload version
+                const formData = new FormData();
+                formData.append('document_id', documentId);
+                formData.append('title', versionTitle);
+                formData.append('description', versionDescription);
+                formData.append('file', file);
+
+                await DocumentsAPI.uploadVersion(formData);
+
+                showToast('文件建立並上傳成功！', 'success');
+                setTimeout(() => {
+                    window.location.href = `/pages/document-detail.html?id=${documentId}`;
+                }, 1500);
+
+            } catch (error) {
+                console.error('Error creating document:', error);
+                showToast('建立文件時發生錯誤：' + error.message, 'error');
+            }
+        }
+
+        async function handleUploadVersion(e) {
+            e.preventDefault();
+
+            const documentId = document.getElementById('existingDocument').value;
+            const title = document.getElementById('versionTitle').value;
+            const description = document.getElementById('versionDescription').value;
+            const file = document.getElementById('versionFile').files[0];
+
+            if (!documentId) {
+                showToast('請選擇文件', 'error');
+                return;
+            }
+
+            if (!file) {
+                showToast('請選擇要上傳的檔案', 'error');
+                return;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('document_id', documentId);
+                formData.append('title', title);
+                formData.append('description', description);
+                formData.append('file', file);
+
+                await DocumentsAPI.uploadVersion(formData);
+
+                showToast('版本上傳成功！', 'success');
+                setTimeout(() => {
+                    window.location.href = `/pages/document-detail.html?id=${documentId}`;
+                }, 1500);
+
+            } catch (error) {
+                console.error('Error uploading version:', error);
+                showToast('上傳版本時發生錯誤：' + error.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
