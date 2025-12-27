@@ -7,7 +7,7 @@ require('dotenv').config();
 class SharePointService {
     constructor() {
         this.siteUrl = process.env.SHAREPOINT_SITE_URL;
-        this.libraryName = process.env.SHAREPOINT_LIBRARY_NAME || 'DocumentLibrary';
+        this.libraryName = process.env.SHAREPOINT_LIBRARY_NAME || 'ProcurementCases';
         this.clientId = process.env.SHAREPOINT_CLIENT_ID;
         this.clientSecret = process.env.SHAREPOINT_CLIENT_SECRET;
         this.tenantId = process.env.SHAREPOINT_TENANT_ID;
@@ -43,30 +43,70 @@ class SharePointService {
     }
 
     /**
-     * 根據文件代碼與版本產生檔名
-     * 格式：{DocumentCode}_v{Version}.{extension}
+     * 建立案件資料夾
      */
-    generateFileName(documentCode, version, originalFileName) {
-        const ext = path.extname(originalFileName);
-        return `${documentCode}_v${version}${ext}`;
+    async createFolder(folderPath) {
+        try {
+            const fullPath = `${this.libraryName}/${folderPath}`;
+            console.log(`[SharePoint Service] Would create folder at: ${fullPath}`);
+
+            // 在正式環境中，使用 SharePoint REST API 建立資料夾
+            if (this.clientId && this.clientSecret) {
+                // const accessToken = await this.getAccessToken();
+                // POST to /_api/web/folders
+                console.log('[SharePoint Service] Folder created successfully (simulated)');
+            } else {
+                console.log('[SharePoint Service] SharePoint not configured, using local storage');
+            }
+
+            return {
+                success: true,
+                folderPath: fullPath,
+                url: `${this.siteUrl}/${fullPath}`
+            };
+        } catch (error) {
+            console.error('Error creating folder in SharePoint:', error);
+            throw error;
+        }
     }
 
     /**
-     * 上傳檔案至 SharePoint 文件庫
+     * 設定資料夾中繼資料（案號、部門、金額等）
      */
-    async uploadFile(filePath, documentCode, version, originalFileName) {
+    async setFolderMetadata(folderPath, metadata) {
         try {
-            // 在正式環境中，這將實際已上傳至 SharePoint
-            // 目前，模擬上傳並回傳 SharePoint 路徑
-            const fileName = this.generateFileName(documentCode, version, originalFileName);
-            const sharePointPath = `${this.libraryName}/${documentCode}/${fileName}`;
+            console.log(`[SharePoint Service] Would set metadata for folder: ${folderPath}`);
+            console.log('[SharePoint Service] Metadata:', metadata);
 
-            console.log(`[SharePoint Service] Would upload file to: ${sharePointPath}`);
-
-            // 模擬上傳（在正式環境中，使用實際的 SharePoint REST API）
+            // 在正式環境中，使用 SharePoint REST API 更新資料夾屬性
             if (this.clientId && this.clientSecret) {
                 // const accessToken = await this.getAccessToken();
-                // Actual upload logic would go here
+                // PATCH to /_api/web/folders/getbyurl('{folderPath}')/ListItemAllFields
+                console.log('[SharePoint Service] Metadata set successfully (simulated)');
+            }
+
+            return {
+                success: true,
+                message: 'Metadata updated'
+            };
+        } catch (error) {
+            console.error('Error setting folder metadata:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * 上傳檔案至 SharePoint 資料夾
+     */
+    async uploadFile(localFilePath, sharePointPath) {
+        try {
+            console.log(`[SharePoint Service] Would upload file to: ${sharePointPath}`);
+
+            // 在正式環境中，使用 SharePoint REST API 上傳檔案
+            if (this.clientId && this.clientSecret) {
+                // const accessToken = await this.getAccessToken();
+                // const fileContent = fs.readFileSync(localFilePath);
+                // POST to /_api/web/GetFolderByServerRelativeUrl('{folder}')/Files/add(url='{filename}',overwrite=true)
                 console.log('[SharePoint Service] File uploaded successfully (simulated)');
             } else {
                 console.log('[SharePoint Service] SharePoint not configured, using local storage');
@@ -74,7 +114,6 @@ class SharePointService {
 
             return {
                 success: true,
-                fileName: fileName,
                 sharePointPath: sharePointPath,
                 url: `${this.siteUrl}/${sharePointPath}`
             };
@@ -91,17 +130,14 @@ class SharePointService {
         try {
             console.log(`[SharePoint Service] Would download file from: ${sharePointPath}`);
 
-            // 在正式環境中，這將從 SharePoint 下載
-            // 目前，回傳模擬回應
+            // 在正式環境中，從 SharePoint 下載檔案
             if (this.clientId && this.clientSecret) {
                 // const accessToken = await this.getAccessToken();
-                // Actual download logic would go here
+                // GET /_api/web/GetFileByServerRelativeUrl('{path}')/$value
+                console.log('[SharePoint Service] File downloaded successfully (simulated)');
             }
 
-            return {
-                success: true,
-                message: 'File download would occur here in production'
-            };
+            return null; // 回傳 null 會讓控制器使用本地檔案
         } catch (error) {
             console.error('Error downloading file from SharePoint:', error);
             throw error;
@@ -109,14 +145,18 @@ class SharePointService {
     }
 
     /**
-     * 從 SharePoint 刪除檔案（用於版本封存）
+     * 從 SharePoint 刪除檔案
      */
     async deleteFile(sharePointPath) {
         try {
             console.log(`[SharePoint Service] Would delete file from: ${sharePointPath}`);
 
-            // 在正式環境中，這將從 SharePoint 刪除
-            // 目前，回傳模擬回應
+            // 在正式環境中，從 SharePoint 刪除檔案
+            if (this.clientId && this.clientSecret) {
+                // const accessToken = await this.getAccessToken();
+                // DELETE /_api/web/GetFileByServerRelativeUrl('{path}')
+            }
+
             return {
                 success: true,
                 message: 'File deletion would occur here in production'
@@ -128,36 +168,35 @@ class SharePointService {
     }
 
     /**
-     * 檢查檔案是否存在於 SharePoint
+     * 檢查資料夾是否存在於 SharePoint
      */
-    async fileExists(sharePointPath) {
+    async folderExists(folderPath) {
         try {
-            console.log(`[SharePoint Service] Would check if file exists at: ${sharePointPath}`);
+            console.log(`[SharePoint Service] Would check if folder exists at: ${folderPath}`);
 
-            // 在正式環境中，這將檢查 SharePoint
-            return false; // 模擬檔案不存在
+            // 在正式環境中，檢查 SharePoint 資料夾
+            return false; // 模擬資料夾不存在
         } catch (error) {
-            console.error('Error checking file existence:', error);
+            console.error('Error checking folder existence:', error);
             return false;
         }
     }
 
     /**
-     * 從 SharePoint 取得檔案中繼資料
+     * 取得資料夾中繼資料
      */
-    async getFileMetadata(sharePointPath) {
+    async getFolderMetadata(folderPath) {
         try {
-            console.log(`[SharePoint Service] Would get metadata for: ${sharePointPath}`);
+            console.log(`[SharePoint Service] Would get metadata for: ${folderPath}`);
 
-            // 在正式環境中，這將從 SharePoint 檢索中繼資料
+            // 在正式環境中，從 SharePoint 檢索資料夾中繼資料
             return {
-                name: path.basename(sharePointPath),
-                size: 0,
+                name: path.basename(folderPath),
                 created: new Date(),
                 modified: new Date()
             };
         } catch (error) {
-            console.error('Error getting file metadata:', error);
+            console.error('Error getting folder metadata:', error);
             throw error;
         }
     }

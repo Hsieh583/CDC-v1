@@ -2,14 +2,20 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
 
-const documentRoutes = require('./routes/document.routes');
-const approvalRoutes = require('./routes/approval.routes');
-const adminRoutes = require('./routes/admin.routes');
+const caseRoutes = require('./routes/case.routes');
+const adminRoutes = require('./routes/admin-v2.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// 確保 uploads 目錄存在
+const uploadsDir = path.join(__dirname, '../uploads');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 // 中介軟體
 app.use(cors());
@@ -22,60 +28,56 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 // 健康檢查端點
 app.get('/health', (req, res) => {
-    res.json({ status: 'OK', message: 'CDC Document Control Center is running' });
+    res.json({ status: 'OK', message: 'CDC Procurement Case Document Upload Portal is running' });
 });
 
 // API 路由
-app.use('/api/documents', documentRoutes);
-app.use('/api/approvals', approvalRoutes);
+app.use('/api/cases', caseRoutes);
 app.use('/api/admin', adminRoutes);
 
 // API 文件端點
 app.get('/api', (req, res) => {
     res.json({
-        name: 'CDC Document Control Center API',
+        name: 'CDC Procurement Case Document Upload Portal',
         version: '1.0.0',
-        description: 'SharePoint-based document management platform with approval workflow',
+        description: 'Controlled document upload portal for procurement cases with SharePoint integration',
         endpoints: {
-            documents: {
-                'POST /api/documents': 'Create a new document',
-                'POST /api/documents/upload-version': 'Upload a new version',
-                'GET /api/documents': 'Get all documents',
-                'GET /api/documents/search': 'Search documents',
-                'GET /api/documents/:id': 'Get document details',
-                'GET /api/documents/:document_id/versions': 'Get version history',
-                'GET /api/documents/:document_id/download': 'Download official version'
-            },
-            approvals: {
-                'POST /api/approvals/submit': 'Submit version for review',
-                'POST /api/approvals/review': 'Review a version (Stage 2)',
-                'POST /api/approvals/approve': 'Approve a version (Stage 3)',
-                'GET /api/approvals/pending': 'Get pending approvals',
-                'GET /api/approvals/history/:version_id': 'Get approval history',
-                'GET /api/approvals/workflow/:category_id': 'Get approval workflow'
+            cases: {
+                'POST /api/cases': 'Create a new procurement case',
+                'POST /api/cases/upload': 'Upload a file to a case (main document or attachment)',
+                'GET /api/cases': 'Get all cases (with pagination)',
+                'GET /api/cases/search': 'Search cases with filters',
+                'GET /api/cases/:id': 'Get case details with all files',
+                'PUT /api/cases/:id': 'Update case information',
+                'GET /api/cases/:case_id/files': 'Get all files for a case',
+                'GET /api/cases/files/:file_id/download': 'Download a specific file'
             },
             admin: {
-                'GET /api/admin/categories': 'Get all categories',
-                'POST /api/admin/categories': 'Create a category',
-                'PUT /api/admin/categories/:id': 'Update a category',
+                'GET /api/admin/case-types': 'Get all case types',
+                'POST /api/admin/case-types': 'Create a case type',
+                'PUT /api/admin/case-types/:id': 'Update a case type',
                 'GET /api/admin/users': 'Get all users',
                 'POST /api/admin/users': 'Create a user',
                 'PUT /api/admin/users/:id': 'Update a user',
-                'GET /api/admin/workflow/:category_id': 'Get workflow config',
-                'PUT /api/admin/workflow/:category_id/:stage_number': 'Update workflow config',
                 'GET /api/admin/audit-logs': 'Get audit logs'
             }
         },
         features: [
-            'Three-stage approval workflow (Author → Reviewer → Approver)',
-            'SharePoint integration for document storage',
-            'Version control and history tracking',
-            'Automatic file naming based on document code and version',
-            'Permission-based access control',
-            'Audit logging for all actions',
-            'Document search and filtering',
-            'Category management',
-            'User management'
+            'Procurement case management',
+            'One main document + multiple attachments per case',
+            'SharePoint folder-based storage with metadata',
+            'Support for any file format',
+            'SQLite index for quick search and retrieval',
+            'Audit logging for all operations',
+            'Simple user and case type management',
+            'No approval workflow - focus on controlled upload'
+        ],
+        design_principles: [
+            'Minimal change from CDC-v1',
+            'Low friction deployment',
+            'Case-based organization (not document control)',
+            'Metadata at folder level (case number, department, amount, applicant)',
+            'No document classification or approval process'
         ]
     });
 });
@@ -104,8 +106,8 @@ app.listen(PORT, () => {
     console.log(`
 ╔═══════════════════════════════════════════════════════════════╗
 ║                                                               ║
-║   CDC Document Control Center                                 ║
-║   文件管制中心                                                  ║
+║   CDC Procurement Case Document Upload Portal                ║
+║   請購案件文件受控上傳入口                                        ║
 ║                                                               ║
 ║   Server is running on http://localhost:${PORT}                 ║
 ║                                                               ║
